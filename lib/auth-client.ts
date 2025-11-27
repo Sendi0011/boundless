@@ -9,12 +9,12 @@ import {
 // Use proxy route on client-side to avoid CORS issues
 // On server-side, use direct backend URL
 const getAuthBaseURL = () => {
-  if (typeof window !== 'undefined') {
-    // Client-side: use proxy route (same origin, no CORS)
-    // Better Auth requires absolute URL, so construct it from window.location
-    const origin = window.location.origin;
-    return `${origin}/api/proxy/auth`;
-  }
+  // if (typeof window !== 'undefined') {
+  //   // Client-side: use proxy route (same origin, no CORS)
+  //   // Better Auth requires absolute URL, so construct it from window.location
+  //   const origin = window.location.origin;
+  //   return `${origin}/api/proxy/auth`;
+  // }
 
   // Server-side: use direct backend URL
   // Normalize: remove trailing slash and /api if present, then add /api/auth
