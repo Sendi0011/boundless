@@ -7,10 +7,5 @@
     "npm_config_platform": "linux",
     "npm_config_arch": "x64",
     "npm_config_libc": "glibc"
-  },
-  "functions": {
-    "**/*.js": {
-      "runtime": "nodejs24.x"
-    }
   }
 }
