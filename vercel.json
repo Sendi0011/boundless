@@ -1,5 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
-  "framework": "nextjs"
+  "installCommand": "npm install && npm rebuild lightningcss",
+  "framework": "nextjs",
+  "nodeVersion": "24.x",
+  "env": {
+    "npm_config_platform": "linux",
+    "npm_config_arch": "x64",
+    "npm_config_libc": "glibc"
+  },
+  "functions": {
+    "**/*.js": {
+      "runtime": "nodejs24.x"
+    }
+  }
 }

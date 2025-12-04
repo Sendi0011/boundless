@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:fix": "eslint --fix .",
-    "prepare": "[ -z \"$CI\" ] && [ -z \"$VERCEL\" ] && husky || true"
+    "prepare": "[ -z \"$CI\" ] && [ -z \"$VERCEL\" ] && husky || true",
+    "postinstall": "[ \"$VERCEL\" = \"1\" ] && npm rebuild lightningcss || true"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
