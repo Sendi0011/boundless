@@ -34,6 +34,7 @@ export default function ProfileOverview({
         }
       ).profile?.socialLinks || {},
   };
+
   const pathname = usePathname();
   const isProfileRoute = pathname.startsWith('/profile');
   const statsData: UserStatsType = {
