@@ -1,64 +1,85 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-interface UseInfiniteScrollOptions {
+export interface UseInfiniteScrollOptions {
   onLoadMore: () => void;
   hasMore: boolean;
   loading: boolean;
   rootMargin?: string;
+  /** When true, logs observer lifecycle and skip reasons to console. Default: false. */
+  debug?: boolean;
 }
 
 /**
  * Triggers onLoadMore when the sentinel element enters the viewport (or within rootMargin of it).
  * Pass the sentinel DOM element (e.g. from a callback ref + state) so the observer attaches after mount.
+ * onLoadMore does not need to be memoized (useCallback); a ref is used internally.
  */
-export function useInfiniteScroll(
+export const useInfiniteScroll: (
   sentinel: HTMLElement | null,
   options: UseInfiniteScrollOptions
-): void {
+) => void = (sentinel, options) => {
   const {
     onLoadMore,
     hasMore,
     loading,
     rootMargin = '0px 0px 400px 0px',
+    debug = false,
   } = options;
+
+  const onLoadMoreRef = useRef(onLoadMore);
+  useEffect(() => {
+    onLoadMoreRef.current = onLoadMore;
+  }, [onLoadMore]);
 
   useEffect(() => {
     if (!sentinel) {
-      console.log(
-        '[useInfiniteScroll] No sentinel element yet, skipping observer'
-      );
+      if (debug) {
+        console.log(
+          '[useInfiniteScroll] No sentinel element yet, skipping observer'
+        );
+      }
       return;
     }
 
-    console.log('[useInfiniteScroll] Observer attached to sentinel', {
-      hasMore,
-      loading,
-      rootMargin,
-    });
+    if (debug) {
+      console.log('[useInfiniteScroll] Observer attached to sentinel', {
+        hasMore,
+        loading,
+        rootMargin,
+      });
+    }
 
     const observer = new IntersectionObserver(
       entries => {
         const [entry] = entries;
         const isIntersecting = !!entry?.isIntersecting;
-        console.log('[useInfiniteScroll] Observer callback', {
-          isIntersecting,
-          hasMore,
-          loading,
-        });
+        if (debug) {
+          console.log('[useInfiniteScroll] Observer callback', {
+            isIntersecting,
+            hasMore,
+            loading,
+          });
+        }
 
         if (!entry?.isIntersecting) return;
         if (!hasMore) {
-          console.log('[useInfiniteScroll] Skipped: hasMore is false');
+          if (debug) {
+            console.log('[useInfiniteScroll] Skipped: hasMore is false');
+          }
           return;
         }
         if (loading) {
-          console.log('[useInfiniteScroll] Skipped: already loading');
+          if (debug) {
+            console.log('[useInfiniteScroll] Skipped: already loading');
+          }
           return;
         }
-        console.log('[useInfiniteScroll] Calling onLoadMore()');
-        onLoadMore();
+        if (debug) {
+          console.log('[useInfiniteScroll] Calling onLoadMore()');
+        }
+        onLoadMoreRef.current?.();
       },
       {
         root: null,
@@ -69,8 +90,10 @@ export function useInfiniteScroll(
 
     observer.observe(sentinel);
     return () => {
-      console.log('[useInfiniteScroll] Observer disconnected');
+      if (debug) {
+        console.log('[useInfiniteScroll] Observer disconnected');
+      }
       observer.disconnect();
     };
-  }, [sentinel, onLoadMore, hasMore, loading, rootMargin]);
-}
+  }, [sentinel, hasMore, loading, rootMargin, debug]);
+};

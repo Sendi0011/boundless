@@ -17,9 +17,7 @@ interface HackathonsPageProps {
   className?: string;
 }
 
-export default function HackathonsPage({
-  className,
-}: HackathonsPageProps = {}) {
+const HackathonsPage: React.FC<HackathonsPageProps> = ({ className } = {}) => {
   const {
     filters,
     handleSearch,
@@ -56,13 +54,6 @@ export default function HackathonsPage({
 
   const [loadMoreSentinelEl, setLoadMoreSentinelRef] =
     useState<HTMLDivElement | null>(null);
-  const setLoadMoreSentinelRefWithLog = React.useCallback(
-    (el: HTMLDivElement | null) => {
-      console.log('[HackathonsPage] Sentinel ref set', el ? 'element' : 'null');
-      setLoadMoreSentinelRef(el);
-    },
-    []
-  );
   useInfiniteScroll(loadMoreSentinelEl, {
     onLoadMore: loadMore,
     hasMore,
@@ -179,7 +170,7 @@ export default function HackathonsPage({
             </div>
 
             <div
-              ref={setLoadMoreSentinelRefWithLog}
+              ref={setLoadMoreSentinelRef}
               className='h-px w-full'
               aria-hidden
             />
@@ -195,4 +186,6 @@ export default function HackathonsPage({
       </main>
     </div>
   );
-}
+};
+
+export default HackathonsPage;

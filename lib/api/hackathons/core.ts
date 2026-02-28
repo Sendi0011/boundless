@@ -298,7 +298,7 @@ export const getPublicHackathonsList = async (
 
   const pagination = raw.pagination;
   return {
-    hackathons: raw.hackathons || [],
+    hackathons: raw.hackathons ?? [],
     hasMore: pagination?.hasNext ?? false,
     total: pagination?.total ?? 0,
     currentPage: pagination?.page ?? 1,

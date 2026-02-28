@@ -36,9 +36,9 @@ interface UseHackathonsListReturn {
   refetch: () => void;
 }
 
-export function useHackathonsList(
-  options: UseHackathonsListOptions = {}
-): UseHackathonsListReturn {
+export const useHackathonsList: (
+  options: UseHackathonsListOptions
+) => UseHackathonsListReturn = (options: UseHackathonsListOptions = {}) => {
   const { initialPage = 1, pageSize = 10, initialFilters = {} } = options;
 
   const [hackathons, setHackathons] = React.useState<Hackathon[]>([]);
@@ -156,10 +156,6 @@ export function useHackathonsList(
   const fetchHackathons = React.useCallback(
     async (page: number, currentFilters: HackathonFilters, append = false) => {
       try {
-        console.log('[useHackathonsList] fetchHackathons called', {
-          page,
-          append,
-        });
         if (append) {
           setLoadingMore(true);
         } else {
@@ -185,13 +181,6 @@ export function useHackathonsList(
         const response: PublicHackathonsListData =
           await getPublicHackathonsList(apiFilters);
         let hackathonsList = response.hackathons || [];
-
-        console.log('[useHackathonsList] API response', {
-          page,
-          count: hackathonsList.length,
-          total: response.total,
-          hasMore: response.hasMore ?? false,
-        });
 
         // Apply client-side location filtering (API doesn't support it)
         hackathonsList = filterByLocation(
@@ -243,20 +232,10 @@ export function useHackathonsList(
   }, [filters, fetchHackathons]);
 
   const loadMore = React.useCallback(() => {
-    console.log('[useHackathonsList] loadMore called', {
-      loadingMore,
-      hasMore,
-      currentPage,
-    });
     if (!loadingMore && hasMore) {
       const nextPage = currentPage + 1;
-      console.log('[useHackathonsList] Fetching next page', nextPage);
       setCurrentPage(nextPage);
       fetchHackathons(nextPage, filters, true);
-    } else {
-      console.log(
-        '[useHackathonsList] loadMore skipped (loadingMore or !hasMore)'
-      );
     }
   }, [loadingMore, hasMore, currentPage, filters, fetchHackathons]);
 
@@ -277,4 +256,4 @@ export function useHackathonsList(
     loadMore,
     refetch,
   };
-}
+};
