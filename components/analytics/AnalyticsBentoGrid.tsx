@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import {
   TrendingUp,
   TrendingDown,
@@ -15,6 +15,7 @@ import {
   ThumbsUp,
   GitBranch,
 } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { GetMeResponse } from '@/lib/api/types';
 import { calculateChartTrend, TrendResult } from '@/lib/utils/calculateTrend';
 
@@ -28,7 +29,7 @@ function TrendBadge({ trend }: { trend: TrendResult }) {
     return (
       <span
         aria-label={`Up ${trend.percentage}%`}
-        className='inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400'
+        className='bg-primary/15 text-primary inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium'
       >
         <TrendingUp className='h-3 w-3' aria-hidden='true' />
         {trend.percentage}%
@@ -49,7 +50,7 @@ function TrendBadge({ trend }: { trend: TrendResult }) {
   return (
     <span
       aria-label='No change'
-      className='inline-flex items-center gap-1 rounded-full bg-zinc-700/50 px-2 py-0.5 text-xs font-medium text-zinc-400'
+      className='bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium'
     >
       <Minus className='h-3 w-3' aria-hidden='true' />
       0%
@@ -64,28 +65,26 @@ interface TileConfig {
   trend: TrendResult;
   colSpan: string;
   rowSpan: string;
-  gradient: string;
   large?: boolean;
 }
 
-const FLAT_TREND: TrendResult = { percentage: 0, direction: 'flat' };
-
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.07 } },
 };
 
-const tileVariants = {
+const tileVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: 'easeOut' as const },
+    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] as const },
   },
 };
 
 export function AnalyticsBentoGrid({ stats, chart }: Props) {
   const chartTrend = useMemo(() => calculateChartTrend(chart), [chart]);
+  const flat: TrendResult = { percentage: 0, direction: 'flat' };
 
   const tiles: TileConfig[] = useMemo(
     () => [
@@ -96,8 +95,6 @@ export function AnalyticsBentoGrid({ stats, chart }: Props) {
         trend: chartTrend,
         colSpan: 'col-span-2',
         rowSpan: 'row-span-2',
-        gradient:
-          'bg-gradient-to-br from-[#06b6d4]/20 via-[#4f46e5]/10 to-transparent',
         large: true,
       },
       {
@@ -107,77 +104,70 @@ export function AnalyticsBentoGrid({ stats, chart }: Props) {
         trend: chartTrend,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-white/[0.03]',
       },
       {
         label: 'Projects Created',
         value: stats.projectsCreated,
         icon: <FolderGit2 className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-white/[0.03]',
       },
       {
         label: 'Hackathons Entered',
         value: stats.hackathons,
         icon: <Trophy className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-gradient-to-br from-amber-500/10 to-transparent',
       },
       {
         label: 'Followers',
         value: stats.followers,
         icon: <Users className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-white/[0.03]',
       },
       {
         label: 'Total Contributed',
         value: stats.totalContributed,
         icon: <DollarSign className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-gradient-to-br from-emerald-500/10 to-transparent',
       },
       {
         label: 'Comments Posted',
         value: stats.commentsPosted,
         icon: <MessageSquare className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-white/[0.03]',
       },
       {
         label: 'Votes Cast',
         value: stats.votes,
         icon: <ThumbsUp className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-white/[0.03]',
       },
       {
         label: 'Following',
         value: stats.following,
         icon: <GitBranch className='h-4 w-4' />,
-        trend: FLAT_TREND,
+        trend: flat,
         colSpan: 'col-span-1',
         rowSpan: 'row-span-1',
-        gradient: 'bg-white/[0.03]',
       },
     ],
-    [stats, chartTrend]
+    [stats, chartTrend, flat]
   );
 
   return (
     <>
+      {/* Screen reader fallback table */}
       <table className='sr-only' aria-label='Analytics statistics'>
         <thead>
           <tr>
@@ -206,29 +196,32 @@ export function AnalyticsBentoGrid({ stats, chart }: Props) {
         variants={containerVariants}
         initial='hidden'
         animate='show'
-        className='grid grid-cols-2 gap-3 sm:grid-cols-4'
+        className='grid grid-cols-2 gap-4 sm:grid-cols-4'
       >
         {tiles.map(tile => (
           <motion.div
             key={tile.label}
             variants={tileVariants}
-            className={`relative flex flex-col justify-between rounded-2xl border border-white/[0.06] p-5 backdrop-blur-sm transition-colors duration-200 hover:border-white/10 ${tile.gradient} ${tile.colSpan} ${tile.rowSpan}`}
+            className={`${tile.colSpan} ${tile.rowSpan}`}
           >
-            <div className='pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.04] to-transparent' />
-            <div className='flex items-start justify-between'>
-              <div className='flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] text-zinc-300'>
-                {tile.icon}
-              </div>
-              <TrendBadge trend={tile.trend} />
-            </div>
-            <div className='mt-4'>
-              <p
-                className={`font-bold tracking-tight text-white ${tile.large ? 'text-4xl' : 'text-2xl'}`}
-              >
-                {tile.value.toLocaleString()}
-              </p>
-              <p className='mt-1 text-sm text-zinc-500'>{tile.label}</p>
-            </div>
+            <Card className='h-full'>
+              <CardHeader className='flex flex-row items-start justify-between space-y-0 pb-2'>
+                <div className='bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-xl'>
+                  {tile.icon}
+                </div>
+                <TrendBadge trend={tile.trend} />
+              </CardHeader>
+              <CardContent>
+                <p
+                  className={`font-bold tracking-tight ${tile.large ? 'text-4xl' : 'text-2xl'}`}
+                >
+                  {tile.value.toLocaleString()}
+                </p>
+                <p className='text-muted-foreground mt-1 text-sm'>
+                  {tile.label}
+                </p>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
       </motion.div>
